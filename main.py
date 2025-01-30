@@ -11,23 +11,23 @@ def helis_webhook():
     """
     try:
         notifications = request.get_json()  # should be a list of tx notifications
+        
+        # 1) Print the entire JSON payload for debugging:
+        print("Received JSON from Helius:\n", json.dumps(notifications, indent=2))
+        
+        # 2) Then proceed with your existing loop:
         for tx_notification in notifications:
-            # Basic fields
             signature = tx_notification.get("signature")
-            # The 'instructions' field might contain detailed info about each instruction
             instructions = tx_notification.get("instructions", [])
 
-            # Parse each instruction
             for instr in instructions:
                 program_id = instr.get("programId")
-                # The 'parsed' field might show the specific instruction name, e.g. 'initialize_pool'
                 parsed = instr.get("parsed", {})
                 if parsed.get("type") == "initialize_pool":
                     print(f"[Webhook] New pool initialized in tx {signature}")
 
-                    # Here, you'd parse the new token mint or pool addresses
-                    # Possibly check if it's truly a brand-new token
-                    # Then proceed to fetch liquidity data, do your sniper logic, etc.
+                    # Additional logic goes here
+                    # e.g., parse token mint addresses, check liquidity, etc.
 
         return jsonify({"status": "ok"}), 200
     
@@ -35,7 +35,8 @@ def helis_webhook():
         print(f"Error processing webhook: {e}")
         return jsonify({"error": str(e)}), 500
 
+
 if __name__ == "__main__":
-    # This runs a simple dev server on port 5000
-    # In production, run via gunicorn or another WSGI server.
+    # This runs a simple dev server on port 5000.
+    # In production, you typically run via gunicorn or another WSGI server.
     app.run(host="0.0.0.0", port=5000, debug=True)
