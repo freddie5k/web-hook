@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify
 #  SOLANA-PY IMPORTS
 # ----------------------
 from solana.rpc.api import Client
+from solana.publickey import PublicKey
 
 app = Flask(__name__)
 
@@ -42,14 +43,17 @@ def get_top_holders(token_mint: str):
       if you need reliability or a higher rate limit.
     """
     client = Client("https://api.mainnet-beta.solana.com")
+
+     # Convert string to PublicKey
+    lp_mint_key = PublicKey(lp_mint)
     
     # 1) get_token_largest_accounts
-    largest_res = client.get_token_largest_accounts(token_mint)
+    largest_res = client.get_token_largest_accounts(lp_mint_key)
     if "value" not in largest_res or not largest_res["value"]:
         return []
     
     # 2) get token supply to find decimals
-    supply_res = client.get_token_supply(token_mint)
+    supply_res = client.get_token_supply(lp_mint_key)
     if ("value" not in supply_res or not supply_res["value"] or 
         "decimals" not in supply_res["value"]):
         decimals = 9  # fallback if we can't fetch
